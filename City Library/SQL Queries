@@ -1,0 +1,203 @@
+-- CREATE TABLE "BRANCH" --------------------------------------- CREATE TABLE `BRANCH`(
+`BID` Int( 0 ) AUTO_INCREMENT NOT NULL, `LNAME` VarChar( 255 ) NULL,
+`LOCATION` VarChar( 255 ) NULL,
+PRIMARY KEY ( `BID` ),
+CONSTRAINT `unique_BID` UNIQUE( `BID` ) ) -- -------------------------------------------------------------
+-- CREATE TABLE "ADMIN" ---------------------------------------- CREATE TABLE `ADMIN`(
+`A_ID` Int( 0 ) NOT NULL,
+`A_NAME` VarChar( 255 ) NOT NULL,
+`A_PASS` VarChar( 255 ) NOT NULL,
+PRIMARY KEY ( `A_ID` ),
+CONSTRAINT `unique_A_ID` UNIQUE( `A_ID` ) )
+-- -------------------------------------------------------------
+-- CREATE TABLE "READER" --------------------------------------- CREATE TABLE `READER`(
+`RID` Int( 0 ) AUTO_INCREMENT NOT NULL, `RNAME` VarChar( 255 ) NULL,
+`RTYPE` VarChar( 255 ) NULL,
+`RADDRESS` VarChar( 255 ) NULL, `PHONE_NO` VarChar( 255 ) NULL, PRIMARY KEY ( `RID` ),
+CONSTRAINT `unique_RID` UNIQUE( `RID` ) )
+  
+ -- -------------------------------------------------------------
+-- CREATE TABLE "DOCUMENT" ------------------------------------- CREATE TABLE `DOCUMENT`(
+`DOCID` Int( 0 ) AUTO_INCREMENT NOT NULL, `TITLE` VarChar( 255 ) NULL,
+`PUBLISHERID` Int( 0 ) NULL,
+`PDATE` DateTime NULL,
+PRIMARY KEY ( `DOCID` ),
+CONSTRAINT `unique_DOCID` UNIQUE( `DOCID` ) )
+CONSTRAINT `lnk_PUBLISHER_DOCUMENT` FOREIGN KEY ( `PUBLISHERID` )
+REFERENCES `PUBLISHER`( `PUBLISHERID` ) ON DELETE Cascade ON UPDATE Cascade;
+-- -------------------------------------------------------------
+-- CREATE TABLE "BOOK" ----------------------------------------- CREATE TABLE `BOOK`(
+`DOCID` Int( 0 ) AUTO_INCREMENT NOT NULL,
+`ISBN` Int( 0 ) NULL,
+PRIMARY KEY ( `DOCID` ),
+CONSTRAINT `unique_DOCID` UNIQUE( `DOCID` ) )
+CONSTRAINT `lnk_DOCUMENT_BOOK` FOREIGN KEY ( `DOCID` )
+REFERENCES `DOCUMENT`( `DOCID` ) ON DELETE Cascade ON UPDATE Cascade;
+-- -------------------------------------------------------------
+-- CREATE TABLE "JOURNAL_VOLUME" ------------------------------- CREATE TABLE `JOURNAL_VOLUME`(
+`DOCID` Int( 0 ) AUTO_INCREMENT NOT NULL, `VOLUME_NO` VarChar( 255 ) NULL,
+`EDITOR` Int( 0 ) NULL,
+PRIMARY KEY ( `DOCID` ),
+CONSTRAINT `unique_DOCID` UNIQUE( `DOCID` ) )
+CONSTRAINT `lnk_DOCUMENT_JOURNAL_VOLUME` FOREIGN KEY ( `DOCID` )
+REFERENCES `DOCUMENT`( `DOCID` ) ON DELETE Cascade ON UPDATE Cascade CONSTRAINT `lnk_PERSON_JOURNAL_VOLUME` FOREIGN KEY ( `EDITOR` )
+REFERENCES `PERSON`( `PID` ) ON DELETE Cascade ON UPDATE Cascade;
+    
+ -- -------------------------------------------------------------
+-- CREATE TABLE "JOURNAL_ISSUE" -------------------------------- CREATE TABLE `JOURNAL_ISSUE`(
+`DOCID` Int( 0 ) NOT NULL,
+`ISSUE_NO` Int( 0 ) AUTO_INCREMENT NOT NULL,
+`SCOPE` VarChar( 255 ) NULL,
+PRIMARY KEY ( `DOCID`, `ISSUE_NO` ),
+CONSTRAINT `unique_ISSUE_NO` UNIQUE( `ISSUE_NO` ) )
+CONSTRAINT `lnk_JOURNAL_VOLUME_JOURNAL_ISSUE` FOREIGN KEY (
+`DOCID` ) REFERENCES `JOURNAL_VOLUME`( `DOCID` ) ON DELETE Cascade ON UPDATE Cascade;
+-- -------------------------------------------------------------
+-- CREATE TABLE "PROCEEDINGS" ---------------------------------- CREATE TABLE `PROCEEDINGS`(
+`DOCID` Int( 0 ) AUTO_INCREMENT NOT NULL,
+`CDATE` DateTime NULL,
+`CLOCATION` VarChar( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL, `CEDITOR` VarChar( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL, PRIMARY KEY ( `DOCID` ),
+CONSTRAINT `unique_DOCID` UNIQUE( `DOCID` ) )
+CONSTRAINT `lnk_DOCUMENT_PROCEEDINGS` FOREIGN KEY ( `DOCID` ) REFERENCES `DOCUMENT`( `DOCID` ) ON DELETE Cascade ON UPDATE
+Cascade;
+-- -------------------------------------------------------------
+-- CREATE TABLE "COPY" ----------------------------------------- CREATE TABLE `COPY`(
+`DOCID` Int( 0 ) NOT NULL,
+`COPYNO` Int( 0 ) NOT NULL,
+`BID` Int( 0 ) NOT NULL,
+`POSITION` VarChar( 255 ) NULL,
+PRIMARY KEY ( `DOCID`, `COPYNO`, `BID` ) )
+CONSTRAINT `lnk_BRANCH_COPY` FOREIGN KEY ( `BID` )
+REFERENCES `BRANCH`( `BID` ) ON DELETE Cascade ON UPDATE Cascade;
+    
+ CONSTRAINT `lnk_DOCUMENT_COPY` FOREIGN KEY ( `DOCID` )
+REFERENCES `DOCUMENT`( `DOCID` ) ON DELETE Cascade ON UPDATE Cascade;
+-- -------------------------------------------------------------
+-- CREATE TABLE "BORROWS" -------------------------------------- CREATE TABLE `BORROWS`(
+`BID` Int( 0 ) NOT NULL,
+`COPYNO` Int( 0 ) NOT NULL,
+`DOCID` Int( 0 ) NOT NULL,
+`RID` Int( 0 ) NOT NULL,
+`BDTIME` Date NULL,
+`RDTIME` Date NULL,
+`BOR_NO` Int( 0 ) AUTO_INCREMENT NOT NULL,
+PRIMARY KEY ( `BOR_NO` ),
+CONSTRAINT `unique_BOR_NO` UNIQUE( `BOR_NO` ) )
+CONSTRAINT `lnk_COPY_BORROWS` FOREIGN KEY ( `BID` ) REFERENCES `COPY`( `BID` ) ON DELETE Cascade ON UPDATE Cascade;
+CONSTRAINT `lnk_COPY_BORROWS_2` FOREIGN KEY ( `DOCID` )REFERENCES `COPY`( `DOCID` ) ON DELETE Cascade ON UPDATE Cascade;
+CONSTRAINT `lnk_COPY_BORROWS_3` FOREIGN KEY ( `COPYNO` ) REFERENCES `COPY`( `COPYNO` ) ON DELETE Cascade ON UPDATE Cascade; CONSTRAINT `lnk_READER_BORROWS` FOREIGN KEY ( `RID` )
+REFERENCES `READER`( `RID` ) ON DELETE Cascade ON UPDATE Cascade;
+-- -------------------------------------------------------------
+-- CREATE TABLE "RESERVES" ------------------------------------- CREATE TABLE `RESERVES`(
+`RID` Int( 0 ) NOT NULL,
+`RESERVATION_NO` Int( 0 ) AUTO_INCREMENT NOT NULL,
+`DOCID` Int( 0 ) NOT NULL,
+`COPYNO` Int( 0 ) NOT NULL,
+`BID` Int( 0 ) NOT NULL,
+`DTIME` Date NULL,
+PRIMARY KEY ( `RESERVATION_NO` ),
+CONSTRAINT `unique_RESERVATION_NO` UNIQUE( `RESERVATION_NO` ) ) CONSTRAINT `lnk_COPY_RESERVES` FOREIGN KEY ( `BID` ) REFERENCES `COPY`( `BID` ) ON DELETE Cascade ON UPDATE Cascade;
+   
+ CONSTRAINT `lnk_COPY_RESERVES_2` FOREIGN KEY ( `COPYNO` ) REFERENCES `COPY`( `COPYNO` ) ON DELETE Cascade ON UPDATE Cascade; CONSTRAINT `lnk_COPY_RESERVES_3` FOREIGN KEY ( `DOCID` ) REFERENCES `COPY`( `DOCID` ) ON DELETE Cascade ON UPDATE Cascade; CONSTRAINT `lnk_READER_RESERVES` FOREIGN KEY ( `RID` )
+REFERENCES `READER`( `RID` ) ON DELETE Cascade ON UPDATE Cascade;
+-- -------------------------------------------------------------
+-- CREATE TABLE "PERSON" --------------------------------------- CREATE TABLE `PERSON`(
+`PID` Int( 0 ) AUTO_INCREMENT NOT NULL, `PNAME` VarChar( 255 ) NULL,
+PRIMARY KEY ( `PID` ),
+CONSTRAINT `unique_PID` UNIQUE( `PID` ) )
+-- -------------------------------------------------------------
+-- CREATE TABLE "AUTHORS" -------------------------------------- CREATE TABLE `AUTHORS`(
+`PID` Int( 0 ) NOT NULL,
+`DOCID` Int( 0 ) NOT NULL,
+PRIMARY KEY ( `PID`, `DOCID` ) )
+CONSTRAINT `lnk_DOCUMENT_AUTHORS` FOREIGN KEY ( `DOCID` ) REFERENCES `DOCUMENT`( `DOCID` ) ON DELETE Cascade ON UPDATE
+Cascade;
+CONSTRAINT `lnk_PERSON_AUTHORS` FOREIGN KEY ( `PID` )
+REFERENCES `PERSON`( `PID` ) ON DELETE Cascade ON UPDATE Cascade; -- -------------------------------------------------------------
+-- CREATE TABLE "CHAIR" ---------------------------------------- CREATE TABLE `CHAIR`(
+`PID` Int( 0 ) NOT NULL,
+`DOCID` Int( 0 ) NOT NULL, PRIMARY KEY ( `PID`, `DOCID` ) )
+CONSTRAINT `lnk_PERSON_CHAIR` FOREIGN KEY ( `PID` )
+REFERENCES `PERSON`( `PID` ) ON DELETE Cascade ON UPDATE Cascade;
+CONSTRAINT `lnk_PROCEEDINGS_CHAIR` FOREIGN KEY ( `DOCID` )
+    
+ REFERENCES `PROCEEDINGS`( `DOCID` ) ON DELETE Cascade ON UPDATE Cascade;
+-- -------------------------------------------------------------
+-- CREATE TABLE "GEDITS" --------------------------------------- CREATE TABLE `GEDITS`(
+`DOCID` Int( 0 ) NOT NULL,
+`ISSUE_NO` Int( 0 ) NOT NULL,
+`PID` Int( 0 ) NOT NULL,
+PRIMARY KEY ( `DOCID`, `ISSUE_NO`, `PID` ) )
+CONSTRAINT `lnk_JOURNAL_ISSUE_GEDITS` FOREIGN KEY ( `DOCID` ) REFERENCES `JOURNAL_ISSUE`( `DOCID` ) ON DELETE Cascade ON UPDATE
+Cascade;
+CONSTRAINT `lnk_JOURNAL_ISSUE_GEDITS_2` FOREIGN KEY ( `ISSUE_NO` )
+REFERENCES `JOURNAL_ISSUE`( `ISSUE_NO` ) ON DELETE Cascade ON UPDATE Cascade;
+CONSTRAINT `lnk_PERSON_GEDITS` FOREIGN KEY ( `PID` )
+REFERENCES `PERSON`( `PID` ) ON DELETE Cascade ON UPDATE Cascade;
+-- -------------------------------------------------------------
+-- CREATE TABLE "PUBLISHER" ------------------------------------ CREATE TABLE `PUBLISHER`(
+`PUBLISHERID` Int( 0 ) AUTO_INCREMENT NOT NULL, `PUBNAME` VarChar( 255 ) NULL,
+`ADDRESS` VarChar( 255 ) NULL,
+PRIMARY KEY ( `PUBLISHERID` ),
+CONSTRAINT `unique_PUBLISHERID` UNIQUE( `PUBLISHERID` ) ) -- -------------------------------------------------------------
+INSERT QUERIES:
+Add book queries:
+"INSERT INTO DOCUMENT (DOCID, TITLE, PDATE, PUBLISHERID) "
++"VALUES ("+ getfrmuser(GUI) + ",'" + getfrmuser(GUI) + "','" +
+getfrmuser(GUI) + "'," + getfrmuser(GUI)+")"
+"INSERT INTO BOOK (DOCID, ISBN) "
++"VALUES ("+getfrmuser(GUI)+ ",'" + getfrmuser(GUI)
+    
+ INSERT INTO COPY (DOCID, COPYNO, BID, POSITION) "
++"VALUES ("+ getfrmuser(GUI) + "," + getfrmuser(GUI) + "," +
+getfrmuser(GUI) + ",'"+ getfrmuser(GUI) + "')"
+Add Journal queries:
+("INSERT INTO DOCUMENT (DOCID, TITLE, PDATE, PUBLISHERID) "
++"VALUES ("+ getfrmuser(GUI) + ",'" + getfrmuser(GUI) + "','" +
+getfrmuser(GUI)+ "'," + getfrmuser(GUI) +")");
+("INSERT INTO JOURNAL_VOLUME (DOCID, VOLUME_NO, EDITOR) "
++"VALUES ("+ getfrmuser(GUI) + ",'" + getfrmuser(GUI)+ "'," +
+getfrmuser(GUI) + ")" );
+("INSERT INTO JOURNAL_ISSUE (DOCID, ISSUE_NO, SCOPE) "
++"VALUES ("+ getfrmuser(GUI) + ",'" + getfrmuser(GUI)+ "','" + getfrmuser(GUI) () + "')" );
+"INSERT INTO COPY (DOCID, COPYNO, BID, POSITION) "
++"VALUES ("+ getfrmuser(GUI) + "," + getfrmuser(GUI) + "," +
+getfrmuser(GUI) + ",'"+ getfrmuser(GUI) + "')"
+Add proceedings:
+("INSERT INTO DOCUMENT (DOCID, TITLE, PDATE, PUBLISHERID) "
++"VALUES ("+ getfrmuser(GUI) + ",'" + getfrmuser(GUI) + "','" +
+getfrmuser(GUI)+ "'," + getfrmuser(GUI) +")");
+"INSERT INTO PROCEEDINGS (DOCID, CDATE, CLOCATION, CEDITOR) " +"VALUES ("+ getfrmuser(GUI) + ",'" + getfrmuser(GUI)+ "','" +
+getfrmuser(GUI) () + "')" );
+"INSERT INTO COPY (DOCID, COPYNO, BID, POSITION) "
++"VALUES ("+ getfrmuser(GUI) + "," + getfrmuser(GUI) + "," +
+getfrmuser(GUI) + ",'"+ getfrmuser(GUI) + "')"
+Add reader:
+"INSERT INTO READER (RID, RTYPE, RNAME, ADDRESS) "
++"VALUES ("+ getfrmuser(GUI) + "," + getfrmuser(GUI) + "," +
+getfrmuser(GUI) + ",'"+ getfrmuser(GUI) + "')"
+ 
+ Search doc Admin:
+"SELECT * FROM `BORROWS` WHERE DOCID = " + getfrmuser(GUI)+ " AND COPYNO = " + getfrmuser(GUI) + " AND BID = "+ getfrmuser(GUI) + ";"
+"SELECT * FROM `RESERVES` WHERE DOCID = " + getfrmuser(GUI)+ " AND COPYNO = " + getfrmuser(GUI) + " AND BID = "+ getfrmuser(GUI) + ";"
+Borrow:
+"SELECT `BOR_NO`, `RID`, `DOCID`, `COPYNO`, `BID`, `BDTIME`, `RDTIME` FROM `BORROWS` WHERE `RID` = " + getfrmuser(GUI) + ";"
+Branches:
+"SELECT `LNAME`, `LOCATION` FROM `BRANCH`;"
+Reserve:
+"SELECT `RESERVATION_NO`, `RID`, `DOCID`, `COPYNO`, `BID`, `DTIME` FROM `RESERVES` WHERE `RID` = " + cardNumber + ";"
+Return:
+"UPDATE BORROWS SET `RDTIME`= '" +getcurrenttime+"' WHERE `BOR_NO` = '" + getfrmdatabase + "' AND `RID` = '" + getfrmuser(GUI) + "';"
+Search by docid:
+( "SELECT `D`.`DOCID`, `TITLE`, `PDATE`, `D`.`PUBLISHERID`, `P`.`PUBNAME`, `COPYNO`, `C`.`BID`, `POSITION`, `LNAME`, `LOCATION` FROM `DOCUMENT` D, `PUBLISHER` P, `COPY` C, `BRANCH` B WHERE `D`.`DOCID`=`C`.`DOCID` AND `C`.`BID`=`B`.`BID` AND `D`.`PUBLISHERID` = `P`.`PUBLISHERID` AND `D`.`DOCID` = '" + getfrmuser(GUI) + "';");
+Search by Title:
+(“SELECT `D`.`DOCID`, `TITLE`, `PDATE`, `D`.`PUBLISHERID`, `P`.`PUBNAME`, `COPYNO`, `C`.`BID`, `POSITION`, `LNAME`, `LOCATION` FROM `DOCUMENT` D, `PUBLISHER` P, `COPY` C, `BRANCH` B WHERE `D`.`DOCID`=`C`.`DOCID` AND `C`.`BID`=`B`.`BID` AND `D`.`PUBLISHERID` = `P`.`PUBLISHERID` AND `D`.`TITLE` LIKE '%" + getfrmuser(GUI) + "%';");
+Search by publisher:
+   
+searchResult = m.execQuery("SELECT `D`.`DOCID`, `TITLE`, `PDATE`, `D`.`PUBLISHERID`, `P`.`PUBNAME`, `COPYNO`, `C`.`BID`, `POSITION`, `LNAME`, `LOCATION` FROM `DOCUMENT` D, `PUBLISHER` P, `COPY` C, `BRANCH` B WHERE `D`.`DOCID`=`C`.`DOCID` AND `C`.`BID`=`B`.`BID` AND `D`.`PUBLISHERID` = `P`.`PUBLISHERID` AND `P`.`PUBNAME` LIKE '%" + getfrmuser(GUI) + "%';");
+Top Borrows:
+"SELECT `DOCID`, COUNT(*) FROM `BORROWS` GROUP BY DOCID ORDER BY COUNT(*) DESC LIMIT + getfrmuser(GUI) +;"
+Top 10 popular books:
+"SELECT `DOCID`, COUNT(*) FROM `BORROWS` WHERE YEAR(BDTIME) = 2016 GROUP BY DOCID ORDER BY COUNT(*) DESC LIMIT 10;"
+Top Readers:
+"SELECT `RID`, COUNT(*) FROM `BORROWS` GROUP BY RID ORDER BY COUNT(*) DESC LIMIT 10;"
