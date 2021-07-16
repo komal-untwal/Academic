@@ -1,0 +1,210 @@
+Project 1 
+-------------------------------------------------------------------------------------------------------------
+Selected Journal Topic :-  Algorithms for Molecular Biology
+
+Goal :- To build a specialized R program to crawl, parse and extract useful information from online websites.Given an input year, our objective is to extract the data for all articles published in that year from the selected journal.
+
+
+Expected fields to be extracted from the journal are :-
+Title
+Authors
+Author Affiliations
+Correspondence Author
+Correspondence Author's Email
+Publish Date
+Abstract
+Keywords
+Full text
+
+-------------------------------------------------------------------------------------------------------------
+->Packages we used to perform operations.
+
+To check if we can scrape the data from the website using package. "robotstxt".
+-library(robotstxt)
+
+To download the web page using read_html() from xml2 package.
+-library(xml2)
+
+To extract content from html page we use rvest package.
+-library("rvest")
+
+
+-------------------------------------------------------------------------------------------------------------
+->This journal is presented from years 2006 to 2021.
+First a function named "Jouranal_data" will take the year as input.
+If the input year is less than year 2006 or greater than 2021 then it will give the error of wrong input else the function will extract the data and give output as per the requirement.
+
+
+->ArryOfYears=c(2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021)
+
+
+-------------------------------------------------------------------------------------------------------------
+->Fields
+
+1.Title
+-To extract Title of each article we are using "c-listing__title" class. 
+-To access the Class of html tags "." is used.
+-To scrape Article Title from the website
+            	
+journal %>%html_nodes(" .c-listing__title a") %>%html_text() -> Title
+
+->We defined JournalDf dataframe to store all the fields. 
+-To store first column in dataframe named "JournalDf".
+JournalDf = data.frame(Title)
+
+
+2.Author
+- To scrap Authors of each article we are using "c-listing__authors" class.
+
+Authors= journal %>% html_nodes(".c-listing__authors") %>% html_text()
+
+-Replacing "Authors:" using gsub to get only authours name.
+
+Authors = gsub("Authors: ","",Authors)
+
+
+3.Author Affiliation
+-To scrap Author Affiliation of each article we are using "c-article-author-affiliation__list" class.
+-for many journals
+JournalDf$Affiliations = c(" ")
+
+
+j = 1
+for(i in 1:length(adUrl)){
+  Mainjournal = read_html(adUrl[j])
+  affiliations = Mainjournal %>% html_nodes(".c-article-author-affiliation__list") %>% html_text()
+  
+  JournalDf$Affiliations[j] = affiliations
+  j = j+1
+  i= i+1
+}
+
+
+
+4.Correspondence Authors
+-To scrap Corresponding Authors we are using ID of each authors with for loop.
+-To access ID '#' is used .
+
+j= 1
+k = 1
+for(i in 1:length(adUrl)){
+  Mainjournal = read_html(adUrl[j])
+  z = Mainjournal %>% html_nodes("#corresp-c1") %>% html_text()
+  JournalDf$CorrospondingAuthors[j] = z
+  j= j+1
+}
+
+
+
+5.Correspondence Author's Email
+-Viewer can contact the Corresponding Authors by clicking link of the webpage as it is opening a separate form to mail them.
+- Authors Email address is not available anywhere in the article, thus we added NA for Correspondence Author's email column.
+
+
+
+6.Publish Date
+-To extract Published date of each article we are using "c-meta__item" class.
+
+published_Date= journal %>% html_nodes(".c-meta__item") %>% html_text() 
+
+-To clean extracted data
+
+published_Date = published_Date[seq(2,length(published_Date), by = 2)]
+published_Date= gsub("Published on: ","",published_Date)
+
+-Adding Published date to the data frame
+
+JournalDf$Published_Date = published_Date
+
+
+7.Abstract
+- To scrap the Abstract of each journal we are using the class "c-article-section__content" with for loop.
+
+-declare the empty coloumn of Abstract
+JournalDf$Abstract = c(" ")
+
+print("adding Abstract")
+j = 1
+
+for(i in 1:length(adUrl)){
+  Mainjournal = read_html(adUrl[j])
+  Abstract = Mainjournal %>% html_nodes(".c-article-section__content") %>% html_text()
+  
+  #firstest value is the abstract
+  JournalDf$Abstract[j] = Abstract[1]
+  j = j+1
+}
+
+
+
+8.Keywords
+-To get keywords we are using "c-article-subject-list__subject span" class.
+-All keywords are written like text without any seperation so to make them readable we seperated them using ",".
+-Then added them in to dataframe "JournalDf".
+
+JournalDf$Keywords = c(" ")
+j=1
+for(i in 1:length(adUrl)){
+	Mainjournal = read_html(adUrl[j])
+  	Keywords = Mainjournal %>% html_nodes(".c-article-subject-list__subject span") %>% html_text()
+  	k = Keywords
+  
+  	t =""
+  	for (i in 1:length(k)){
+    		t = paste(t,k[i],sep = ", ")
+ 	 }
+  	JournalDf$Keywords[j] = t
+  	JournalDf$Keywords[j] = sub(", ","",JournalDf$Keywords[j])
+         j = j+1
+         i= i+1
+}
+
+
+
+9.Full Paper (Text format)
+-Getting all the data from article in text format was quite difficult, as article contains images as well. so we fetch the URL of each article and appended the main url with each article's URL.
+-So viewer can directly access the article by clicking link.
+
+-To scrap  URL
+href = journal %>% html_nodes(".c-listing__title a")
+length(href)
+
+-Creating vector to store each URL 
+ journalUrl = c()
+ for(i in 1:length(href))
+{
+    journalUrl[i] = xml_attrs(href[[i]])[["href"]]
+ }
+
+-Adding main URL in starting of each journal’s URL
+adUrl = paste("https://almob.biomedcentral.com",journalUrl)
+
+- To remove starting space while combining URL 
+adUrl = sub(" ","",adUrl)
+
+-Adding Fulltext URL to data frame
+fulltext = adUrl
+JournalDf$Fulltext.Url = fulltext
+
+---------
+
+Output:
+We tried to store the extracted data in both CSV & XLSX file, & we are successfully getting the expected output in both of the format. 
+*** Note: I will attach both extracted data format in our project submission, but in the code write.csv() is commented just to avoid confusion & redundancy. 
+
+-------------------------------------------------------------------------------------------------------------
+
+
+Problems we faced during project work.
+
+- We tried to scrap the Full Text from articles but as it contain images & different type of data, so it was giving error. We even tried fetching data by using pattern matching methods to extract html data but still we were getting very long, raw & messed up data. Thus to avoid this we decided to simply fetch the URLs of each article's full text.
+- As single article has multiple Corresponding Authors it was confusing that how to access each of them.
+-We tried to extract Corresponding Author's Email but we're getting NA as result so we checked website properly then we got to know that it has direct links which open form to contact particular Author.
+-While we merged all our code, we got different errors for packages as we have different version of RStudio.So it is recommended to reinstall packages & restart RStudio session once before running the following program.
+
+ 
+
+
+
+
+
