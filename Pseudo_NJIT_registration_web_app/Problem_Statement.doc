@@ -1,0 +1,40 @@
+Design a HTML document to display the following and write a Java Servlet Program that represents a pseudo NJIT registration web application where students can perform two tasks :
+1) search for courses and 2) register in courses. 
+This is achieved through interaction with database.   
+Following are minimum requirements:You will develop a client side and a Servlet program that will work with a database.
+1.   The client (front end) should have a title “NJIT Registration System” and display a welcome message “Welcome to course registration site of NJIT”.
+2.   It will also display two radio buttons 1) ‘Course search’ and 2) ‘Course registration’. 
+3.   When you click on the radio button ‘Course search’ the following appears on the webpage:  
+    A.  A drop down list box with label “Semester” and a submit button “Submit”.
+    B.  The drop down list box will show ‘select semester’ by default. 
+    C.  When you click open the drop down list box it will have two more items “Fall2021” and “Spring2022”. Students should be able to select either. 
+    D.  After selecting semester “Fall2021”, student clicks on the “Submit” button. 
+    It will send a query to the database and return a result that you will display on the webpage as follows: 
+    
+    CS670  Fall2021  Artificial Intelligence
+    CS677  Fall2021  Deep Learning
+    
+    E.   After selecting semester “Spring2022”, student clicks on the “Submit” button. It will send a query to the database and return a result that you will display on the webpage as follows:
+
+    CS675  Spring2022  Machine Learning
+    CS680  Spring2022  Linux Programming   
+
+This presentation of data can be done in one of the two ways :
+I.Like its shown here – a message format.
+II.Tabular format (in a table). 
+
+4.   When you click on the radio button “Course registration”, following appears on the webpage:
+    A.  A text box “CourseID”, a text box “Semester” and a button “Register”. 
+    B.  Student will enter a CourseID, a semester and click on the button “Register”. This will send a query to the database which will have two possible outcome:
+        I.If the query finds a match, display a message on the client like “You are registered in Artificial Intelligence for Fall 2021”. 
+        II.If the query doesn’t find a match, display a message on the client “The course is not offered”. 
+       
+       Handle the following errors with an appropriate message displayed on the webpage:
+        1.   On ‘Course Search’ option, when a student do not select Semester as “Fall2021” or “Spring2022” and click on the “Submit” button. This will send a query to the database which will not return anything. Do not code to check on the client. Let the query fail and that failure should reflect on the client. 
+        2.   On “Course Registration’ option, when a student do not have input on ‘CourseID’ field and/or ‘Semester’ field and clicks on “Register”. This will send a query to the database which will not return anything. Do not code to check on the client. Let the query fail and that failure should reflect on the client. 
+        3.   There can be other error situations too but this much is good enough for the test. 
+        
+        Database info:
+        1.   Create a database “NJIT”.
+        2.   Create a table “Courses” in that database. 
+        The database should have only the required data as displayed on section 3D and 3E. Those four rows of data should be good enough.
