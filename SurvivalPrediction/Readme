@@ -1,0 +1,60 @@
+INTRODUCTION
+
+Kaggle's tabular competition for April 2021 is based on the Titanic competition's concepts. The distinction between this competition and the initial Titanic dataset is that there are 100,000 train cases and 100,000 test cases, which are much larger files.
+
+❖	Overview
+The dataset used for this competition is synthetic but based on a real dataset (Titanic data) and generated using a CTGAN. The statistical properties of this dataset are very similar to the original Titanic dataset, but there is no way to "cheat" by using public labels for predictions.
+     The input has been divided into two categories:
+●	training set (train.csv)
+The training set (train.csv) can be used to build machine learning models. The result, also known as the "ground reality," for each passenger is given for the training package. The model will be focused on "features" such as the gender and class of passengers.
+●	test set (test.csv) 
+The test set can be used to see how well your model works with data that has never been seen before. There is no ground truth given for each passenger in the test set. Predicting these outcomes is the job at hand. Using the model that was learned to predict whether or not each passenger in the test set survived the sinking of the Synthetic for each passenger in the test set.
+
+❖	Goal
+My goal is to predict whether a passenger on the Synthetic (a synthetic, much larger dataset based on the real Titanic dataset) survived the sinking or not. To get the Survived target, we must predict a 0 or 1 value for each PassengerId row in the test set.The accuracy score is expressed as the percentage of passengers who were correctly predicted.
+
+
+
+
+
+-------DATA PREPROCESSING-----
+
+Data preprocessing is a crucial and essential step that we worked on before applying any prediction model to the given dataset since high-quality data leads to better models and predictions. It is important to preprocess data in order to ensure high-quality results.
+Data preprocessing is four step process es data cleaning, data integration, data reduction, and data    transformation. Outliers are removed, missing values are replaced, noisy data is smoothed, and inconsistent data is corrected using data cleaning techniques. We used the approach of replacing the missing value with the attribute's central tendency (mean, median, mode) to deal with missing data. The mean (in the case of a normal distribution) or median (in the case of a non-normal distribution) can be used to fill in the missing value based on the data distribution.
+
+In the given dataset, we replace the missing value in Age, Fare columns with their respective mean values.
+
+#code snippets:
+
+age_na_fill <- dat %>% group_by(Pclass, Sex) %>% 
+  summarise(Age_na = mean(Age, na.rm = T))
+
+fare_na_fill <- dat %>% group_by(Pclass) %>% 
+  summarise(Fare_na = mean(Fare, na.rm = T))
+
+Preprocessing is needed since the raw input data cannot be used to make predictions directly. This is because most machine learning models need data to be in a predefined format, so the raw data must first be cleaned and formatted before the ML model can process it. As a result, we preprocessed some of the necessary parameters before adding them to the prediction model by reformatting them.
+
+
+ #Code Snippets:
+
+dat <- dat %>%
+  left_join(age_na_fill, by = c("Pclass", "Sex")) %>%
+  mutate(Age = ifelse(is.na(Age), Age_na, Age)) %>%
+  select(-Age_na) %>%
+  left_join(fare_na_fill, by = c("Pclass")) %>%
+  mutate(Fare = ifelse(is.na(Fare), Fare_na, Fare)) %>%
+  select(-Fare_na) %>%
+  separate(col = Name, into = c("Name1", "Name2"), sep = ", ") %>%
+  #mutate(Ticket = str_replace_all(Ticket, "\\.|\\/", "")) %>%
+  add_count(Ticket) %>%
+  rename(Ticket_N = n) %>%
+  mutate(Cabin_number = get_cabin_data(Cabin, type = "number"),
+         Cabin_alpha = get_cabin_data(Cabin, type = "alpha"),
+         Cabin_alpha = ifelse(Cabin_alpha == "", "missing", Cabin_alpha),
+         Ticket_alpha = str_replace_all(string = Ticket, pattern = regex("[0-9]"), replacement = ""),
+         Ticket_alpha = str_replace_all(string = Ticket_alpha, pattern = " ", replacement = ""),
+         Ticket_alpha = ifelse(Ticket_alpha == "", "missing", Ticket_alpha),
+         Embarked = ifelse(Embarked == "", "S", Embarked)
+  ) %>%
+      select(-Cabin, -Name1, -Name2, -Ticket, -Cabin_number) %>%
+      mutate_if(negate(is.numeric), function(x){as.numeric(as.factor(x))})
