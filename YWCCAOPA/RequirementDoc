@@ -1,0 +1,21 @@
+Input: 3 Google Drive Files
+●	Advising file: filled in by advisors when they handle Navigate Alerts (see the attached template).
+○	For Outcome: a choice between "withdrawal", "tutoring", "no answer", "other"
+○	For Talked with Advisor: a choice between "yes" and "no"
+○	Grade: A, B+, B, C+, C, D, F, W, I (Dan or the advisors will help us fill it in at the end of the semester)
+○	Everything else is just text
+●	Tutoring file: attendance file filled by tutors (student name, student email, course prefix and number, section for which they seek help).
+●	Instructors file: filled by us (perhaps by Dan) at the beginning of the semester: course prefix and number, section, instructor, instructor email (only for 100 & 200 level courses)
+Automated Policy Programs
+●	Program 1 (needs to be done by the end of September). Run the program on 1, 15, 29 October and do:
+○	Email reminder to instructors who didn't submit an alert for a section (I'll provide the text of the email).
+○	Email instructors any feedback received from students & statistics about how their alerts were handled: (number of students in the "withdrawal", "tutoring", "no answer", "other" categories for each section).
+○	Email reminders to students who were advised to seek tutoring and didn't go yet. 
+○	Emails to students should come from their student advisors (known from the advisor file). Emails to instructors should come from me (need to check that we can generate emails like this;
+○	 if not, they should come from a generic email address, with the reply-to set as described before).
+●	Program 2 (needs to be done by the end of the semester). Run the program after the end of the semester and do:
+○	Create statistics for each section, for each instructor, and total: average grade for section, #students who received alerts, #students who passed, #students who failed, #students withdrawn, #students who went to tutoring, #students who passed, and went to tutoring. Share these statistics with advisors and college admins.
+○	Email each instructor statistics for their sections and totals across their sections.
+
+_
+
