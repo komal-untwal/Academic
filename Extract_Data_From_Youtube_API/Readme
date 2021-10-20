@@ -1,0 +1,7 @@
+***Working with Youtube's API to collect video statistics from a channel***
+
+ 1: We will need Youtube API key to access API data.
+        follow link to obtain Youtube API key: "https://www.slickremix.com/docs/get-api-key-for-youtube/"
+ 2: We will need Youtube Channel Id to fetch data for particular channel.
+ 3: We need to refer Youtube API referenc documentation to work with API data search
+         Youtube API referenc document link : "https://developers.google.com/youtube/v3/docs/search"
